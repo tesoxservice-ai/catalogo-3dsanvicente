@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      "model-viewer": any;
+     [elemName: string]: any;
     }
   }
 }
