@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk } from 'next/font/google'
+import { CartFavProvider } from '@/contexts/CartFavContext'
 import './globals.css'
 
 const font = Space_Grotesk({
@@ -26,7 +27,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es" className={font.variable} suppressHydrationWarning>
       <body className={`${font.className} antialiased min-h-dvh`} style={{ backgroundColor: '#FFFFFF', color: '#1A1A1A' }}>
-        {children}
+        <CartFavProvider>
+          {children}
+        </CartFavProvider>
       </body>
     </html>
   )
