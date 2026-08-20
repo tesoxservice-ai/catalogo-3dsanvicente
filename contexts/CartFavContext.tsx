@@ -75,7 +75,6 @@ export function CartFavProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { product, quantity: 1 }];
     });
-    setCartOpen(true);
   }, []);
 
   const removeFromCart = useCallback((productId: number) => {

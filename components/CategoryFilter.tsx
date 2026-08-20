@@ -49,7 +49,7 @@ export default function CategoryFilter({ active, onChange }: CategoryFilterProps
               ].join(" ")}
               style={
                 isActive
-                  ? { backgroundColor: "#38BDF8", borderColor: "transparent" }
+                  ? { backgroundColor: "  #38BDF8", borderColor: "transparent" }
                   : { borderColor: "#3A3A3A", backgroundColor: "transparent" }
               }
             >
