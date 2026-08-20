@@ -5,8 +5,5 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Cliente con privilegios de admin (solo para el panel)
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Para el admin usamos el mismo cliente anon — las políticas RLS permiten todo
+export const supabaseAdmin = supabase
