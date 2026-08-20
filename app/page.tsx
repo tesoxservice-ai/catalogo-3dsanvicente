@@ -1,3 +1,5 @@
+export const revalidate = 0
+
 import { getProducts } from '@/lib/products'
 import HomeClient from './HomeClient'
 
