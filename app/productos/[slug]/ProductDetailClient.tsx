@@ -2,11 +2,10 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import type { Product } from "@/components/ProductCard";
 import Viewer3D from "@/components/Viewer3D";
-
-const WA_NUMBER = "5491131074381";
+import { useVendedora } from "@/contexts/VendedoraContext";
 
 const COLOR_MAP: Record<string, string> = {
   blanco: "#FFFFFF",
@@ -31,6 +30,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   "decoracion-esculturas": "Decoración y Esculturas",
   macetas: "Macetas",
   "animales-decorativos": "Animales Decorativos",
+  "hogar-organizacion": "Hogar y Organización",
+  "mundial-argentina-llaveros": "Mundial / Argentina / Llaveros",
+  "nuevos-ingresos": "Nuevos Ingresos",
 };
 
 const LIGHT_COLORS = new Set(["blanco", "amarillo", "beige", "natural"]);
@@ -39,18 +41,17 @@ function formatPrice(price: number): string {
   return price.toLocaleString("es-AR");
 }
 
-function buildWALink(name: string, code: string): string {
-  const msg = `Hola! Me interesa ${name} (código ${code}). ¿Tienen disponibilidad y precio?`;
-  return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-}
-
 export default function ProductDetailClient({ product }: { product: Product }) {
   const router = useRouter();
+  const { waNumber } = useVendedora();
   const [imgError, setImgError] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(product.colors[0] ?? null);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
   const [show3D, setShow3D] = useState(false);
-  const viewerRef = useRef<any>(null);
+
+  const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(
+    `Hola! Me interesa ${product.name} (código ${product.code}). ¿Tienen disponibilidad y precio?`
+  )}`;
 
   async function handleShare() {
     const url = window.location.href;
@@ -64,7 +65,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   }
 
   const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category;
-  const waLink = buildWALink(product.name, product.code);
   const priceStr = formatPrice(product.price);
   const hasImage = !imgError && product.images[0];
 
@@ -120,18 +120,12 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             </div>
           )}
 
-          {/* Badges */}
           <div className="absolute top-3 left-3 flex gap-2">
-            <span
-              className="text-xs font-semibold px-2.5 py-1 rounded-full"
-              style={{ backgroundColor: "rgba(255,255,255,0.95)", color: "#6B7280", border: "1px solid #E5E7EB" }}
-            >
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.95)", color: "#6B7280", border: "1px solid #E5E7EB" }}>
               {categoryLabel}
             </span>
             {product.has3DModel && (
-              <span className="text-xs font-black px-2.5 py-1 rounded-full" style={{ backgroundColor: "#1A1A1A", color: "#FFFFFF" }}>
-                3D
-              </span>
+              <span className="text-xs font-black px-2.5 py-1 rounded-full" style={{ backgroundColor: "#1A1A1A", color: "#FFFFFF" }}>3D</span>
             )}
           </div>
         </div>
@@ -156,9 +150,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
         {/* NAME + PRICE */}
         <div className="flex flex-col gap-1">
           <p className="text-xs tracking-widest uppercase" style={{ color: "#9CA3AF" }}>{product.code}</p>
-          <h1 className="text-2xl sm:text-3xl font-black leading-tight" style={{ color: "#1A1A1A" }}>
-            {product.name}
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-black leading-tight" style={{ color: "#1A1A1A" }}>{product.name}</h1>
           <div className="flex items-baseline gap-0.5 mt-2">
             <sup className="text-sm font-bold" style={{ color: "#1A1A1A", marginBottom: "2px" }}>$</sup>
             <span className="text-3xl font-black" style={{ color: "#1A1A1A" }}>{priceStr}</span>
@@ -168,18 +160,17 @@ export default function ProductDetailClient({ product }: { product: Product }) {
         <div style={{ borderTop: "1px solid #F3F4F6" }} />
 
         {/* DIMENSIONS */}
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl"
-          style={{ backgroundColor: "#F9FAFB", border: "1px solid #F3F4F6" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round">
-            <path d="M21 3H3v18h18V3z"/><path d="M3 9h18"/><path d="M9 21V9"/>
-          </svg>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Dimensiones</p>
-            <p className="text-sm font-semibold" style={{ color: "#1A1A1A" }}>{product.dimensions}</p>
+        {product.dimensions && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "#F9FAFB", border: "1px solid #F3F4F6" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M21 3H3v18h18V3z"/><path d="M3 9h18"/><path d="M9 21V9"/>
+            </svg>
+            <div>
+              <p className="text-[10px] uppercase tracking-widest" style={{ color: "#9CA3AF" }}>Dimensiones</p>
+              <p className="text-sm font-semibold" style={{ color: "#1A1A1A" }}>{product.dimensions}</p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* DESCRIPTION */}
         {product.description && (

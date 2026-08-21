@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useCartFav } from "@/contexts/CartFavContext";
+import { useVendedora } from "@/contexts/VendedoraContext";
 
 export interface Product {
   id: number;
@@ -27,6 +28,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   "decoracion-esculturas": "Decoración",
   macetas: "Macetas",
   "animales-decorativos": "Animales",
+  "hogar-organizacion": "Hogar",
+  "mundial-argentina-llaveros": "Llaveros",
+  "nuevos-ingresos": "Nuevo",
 };
 
 function formatPrice(price: number): string {
@@ -41,11 +45,16 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [imgError, setImgError] = useState(false);
   const [hovered, setHovered] = useState(false);
   const { addToCart, isInCart, toggleFavorite, isFavorite } = useCartFav();
+  const { waNumber } = useVendedora();
 
   const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category;
   const priceStr = formatPrice(product.price);
   const inCart = isInCart(product.id);
   const fav = isFavorite(product.id);
+
+  const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(
+    `Hola! Me interesa el producto ${product.name}. ¿Tienen disponibilidad?`
+  )}`;
 
   return (
     <div
@@ -144,20 +153,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           }}
         >
           {inCart ? (
-            <>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M20 6L9 17l-5-5"/>
-              </svg>
-              En el carrito
-            </>
+            <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>En el carrito</>
           ) : (
-            <>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-              </svg>
-              Agregar al carrito
-            </>
+            <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Agregar al carrito</>
           )}
         </button>
       </div>

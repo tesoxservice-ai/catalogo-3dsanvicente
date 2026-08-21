@@ -2,30 +2,28 @@
 
 import { useEffect } from "react";
 import { useCartFav } from "@/contexts/CartFavContext";
-
-const WA_NUMBER = "5491131074381";
+import { useVendedora } from "@/contexts/VendedoraContext";
 
 function formatPrice(price: number): string {
   return price.toLocaleString("es-AR");
 }
 
-function buildCartWALink(items: { product: { name: string; price: number }; quantity: number }[], total: number): string {
+function buildCartWALink(items: { product: { name: string; price: number }; quantity: number }[], total: number, waNumber: string): string {
   const lines = items.map((i) => `• ${i.quantity}x ${i.product.name} — $${formatPrice(i.product.price * i.quantity)}`).join("\n");
   const msg = `Hola! Me interesa hacer el siguiente pedido:\n\n${lines}\n\nTotal: $${formatPrice(total)}\n\n¿Tienen disponibilidad?`;
-  return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  return `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
 }
 
 export default function CartDrawer() {
   const { cart, cartOpen, setCartOpen, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart } = useCartFav();
+  const { waNumber } = useVendedora();
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setCartOpen(false); };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [setCartOpen]);
 
-  // Prevent scroll when open
   useEffect(() => {
     document.body.style.overflow = cartOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -33,7 +31,6 @@ export default function CartDrawer() {
 
   return (
     <>
-      {/* Overlay */}
       {cartOpen && (
         <div
           className="fixed inset-0 z-40"
@@ -42,7 +39,6 @@ export default function CartDrawer() {
         />
       )}
 
-      {/* Drawer */}
       <div
         className="fixed top-0 right-0 h-full z-50 flex flex-col"
         style={{
@@ -60,22 +56,14 @@ export default function CartDrawer() {
               <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
             </svg>
-            <span className="font-black text-base" style={{ color: "#1A1A1A" }}>
-              Carrito
-            </span>
+            <span className="font-black text-base" style={{ color: "#1A1A1A" }}>Carrito</span>
             {cartCount > 0 && (
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: "#1A1A1A", color: "#FFFFFF" }}
-              >
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#1A1A1A", color: "#FFFFFF" }}>
                 {cartCount}
               </span>
             )}
           </div>
-          <button
-            onClick={() => setCartOpen(false)}
-            className="p-2 rounded-lg transition-colors hover:bg-gray-100"
-          >
+          <button onClick={() => setCartOpen(false)} className="p-2 rounded-lg transition-colors hover:bg-gray-100">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round">
               <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
@@ -91,27 +79,15 @@ export default function CartDrawer() {
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
               </svg>
               <p className="text-sm font-medium" style={{ color: "#9CA3AF" }}>Tu carrito está vacío</p>
-              <button
-                onClick={() => setCartOpen(false)}
-                className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:opacity-80"
-                style={{ backgroundColor: "#F3F4F6", color: "#1A1A1A" }}
-              >
+              <button onClick={() => setCartOpen(false)} className="text-sm font-semibold px-4 py-2 rounded-lg" style={{ backgroundColor: "#F3F4F6", color: "#1A1A1A" }}>
                 Ver productos
               </button>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
               {cart.map(({ product, quantity }) => (
-                <div
-                  key={product.id}
-                  className="flex items-center gap-3 p-3 rounded-xl"
-                  style={{ backgroundColor: "#F9FAFB", border: "1px solid #F3F4F6" }}
-                >
-                  {/* Image */}
-                  <div
-                    className="w-16 h-16 rounded-lg shrink-0 overflow-hidden flex items-center justify-center"
-                    style={{ backgroundColor: "#FFFFFF", border: "1px solid #E5E7EB" }}
-                  >
+                <div key={product.id} className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: "#F9FAFB", border: "1px solid #F3F4F6" }}>
+                  <div className="w-16 h-16 rounded-lg shrink-0 overflow-hidden flex items-center justify-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E5E7EB" }}>
                     {product.images[0] ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={product.images[0]} alt={product.name} className="w-full h-full object-contain p-1" />
@@ -122,54 +98,27 @@ export default function CartDrawer() {
                     )}
                   </div>
 
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate" style={{ color: "#1A1A1A" }}>{product.name}</p>
                     <p className="text-xs" style={{ color: "#9CA3AF" }}>{product.dimensions}</p>
-                    <p className="text-sm font-black mt-0.5" style={{ color: "#1A1A1A" }}>
-                      ${formatPrice(product.price * quantity)}
-                    </p>
+                    <p className="text-sm font-black mt-0.5" style={{ color: "#1A1A1A" }}>${formatPrice(product.price * quantity)}</p>
                   </div>
 
-                  {/* Quantity + Remove */}
                   <div className="flex flex-col items-end gap-2">
-                    <button
-                      onClick={() => removeFromCart(product.id)}
-                      className="p-1 rounded transition-colors hover:bg-red-50"
-                    >
+                    <button onClick={() => removeFromCart(product.id)} className="p-1 rounded transition-colors hover:bg-red-50">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round">
                         <path d="M18 6L6 18M6 6l12 12"/>
                       </svg>
                     </button>
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => updateQuantity(product.id, -1)}
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold transition-all hover:opacity-80"
-                        style={{ backgroundColor: "#F3F4F6", color: "#1A1A1A" }}
-                      >
-                        −
-                      </button>
+                      <button onClick={() => updateQuantity(product.id, -1)} className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style={{ backgroundColor: "#F3F4F6", color: "#1A1A1A" }}>−</button>
                       <span className="w-6 text-center text-sm font-bold" style={{ color: "#1A1A1A" }}>{quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(product.id, 1)}
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold transition-all hover:opacity-80"
-                        style={{ backgroundColor: "#1A1A1A", color: "#FFFFFF" }}
-                      >
-                        +
-                      </button>
+                      <button onClick={() => updateQuantity(product.id, 1)} className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style={{ backgroundColor: "#1A1A1A", color: "#FFFFFF" }}>+</button>
                     </div>
                   </div>
                 </div>
               ))}
-
-              {/* Clear */}
-              <button
-                onClick={clearCart}
-                className="text-xs font-medium self-end transition-colors hover:text-red-500"
-                style={{ color: "#9CA3AF" }}
-              >
-                Vaciar carrito
-              </button>
+              <button onClick={clearCart} className="text-xs font-medium self-end" style={{ color: "#9CA3AF" }}>Vaciar carrito</button>
             </div>
           )}
         </div>
@@ -182,7 +131,7 @@ export default function CartDrawer() {
               <span className="text-xl font-black" style={{ color: "#1A1A1A" }}>${formatPrice(cartTotal)}</span>
             </div>
             <a
-              href={buildCartWALink(cart, cartTotal)}
+              href={buildCartWALink(cart, cartTotal, waNumber)}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all hover:opacity-90"
