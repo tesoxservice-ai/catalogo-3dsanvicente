@@ -1,11 +1,6 @@
 "use client";
 
-export type CategoryId =
-  | "todos"
-  | "cuadros-tripticos"
-  | "decoracion-esculturas"
-  | "macetas"
-  | "animales-decorativos";
+export type CategoryId = string;
 
 export interface Category {
   id: CategoryId;
@@ -18,6 +13,9 @@ export const CATEGORIES: Category[] = [
   { id: "decoracion-esculturas", label: "Decoración y Esculturas" },
   { id: "macetas", label: "Macetas" },
   { id: "animales-decorativos", label: "Animales Decorativos" },
+  { id: "hogar-organizacion", label: "Hogar y Organización" },
+  { id: "mundial-argentina-llaveros", label: "Mundial / Argentina / Llaveros" },
+  { id: "nuevos-ingresos", label: "Nuevos Ingresos" },
 ];
 
 interface CategoryFilterProps {
@@ -27,30 +25,36 @@ interface CategoryFilterProps {
 
 export default function CategoryFilter({ active, onChange }: CategoryFilterProps) {
   return (
-    <div className="w-full overflow-x-auto scrollbar-hide">
-      {/* hide-scrollbar utility via inline style */}
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-
-      <div className="flex gap-2 px-4 pb-1 w-max mx-auto">
+    <div className="w-full overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+      <style>{`.cat-hide::-webkit-scrollbar{display:none}`}</style>
+      <div className="cat-hide flex gap-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
         {CATEGORIES.map((cat) => {
           const isActive = cat.id === active;
           return (
             <button
               key={cat.id}
               onClick={() => onChange(cat.id)}
-              className={[
-                "whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer",
-                isActive
-                  ? "text-black font-semibold shadow-[0_0_12px_rgba(56,189,248,0.45)]"
-                  : "border text-gray-400 hover:border-[#38BDF8] hover:text-[#38BDF8]",
-              ].join(" ")}
+              className="whitespace-nowrap text-sm font-semibold transition-all duration-200 shrink-0"
               style={
                 isActive
-                  ? { backgroundColor: "  #38BDF8", borderColor: "transparent" }
-                  : { borderColor: "#3A3A3A", backgroundColor: "transparent" }
+                  ? {
+                      color: "#1A1A1A",
+                      borderBottom: "2px solid #1A1A1A",
+                      paddingBottom: "16px",
+                      paddingTop: "16px",
+                      paddingLeft: "12px",
+                      paddingRight: "12px",
+                      backgroundColor: "transparent",
+                    }
+                  : {
+                      color: "#9CA3AF",
+                      borderBottom: "2px solid transparent",
+                      paddingBottom: "16px",
+                      paddingTop: "16px",
+                      paddingLeft: "12px",
+                      paddingRight: "12px",
+                      backgroundColor: "transparent",
+                    }
               }
             >
               {cat.label}
